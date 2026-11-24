@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Глобальные настройки проложения."""
+    """Глобальные настройки приложения."""
 
     # (драйвер/диалект, учётные данные, хост и порт, имя базы данных)
     DATABASE_URL: str
