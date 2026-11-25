@@ -1,15 +1,13 @@
 from decimal import Decimal
 from uuid import UUID
 
-from sqlmodel import SQLModel
-
 from app.database.repositories.wallet import WalletRepository
 from app.models.wallet import Wallet
 from app.schemas.wallet import OperationType
 from app.services.exceptions import InsufficientFundsError, WalletNotFoundError
 
 
-class WalletService(SQLModel):
+class WalletService:
     """Класс для работы с репозиторием."""
 
     def __init__(self, repo: WalletRepository):
