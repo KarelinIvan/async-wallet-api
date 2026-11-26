@@ -1,18 +1,18 @@
 import os
 
 import pytest
+import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from app.core.settings import settings
 from app.database.session import get_session
 from app.main import app
 
-TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
 
-
-@pytest.fixture
+@pytest_asyncio.fixture
 async def test_engine():
     """
     Фикстура создаёт движек для тестовой базы данных.
@@ -20,7 +20,7 @@ async def test_engine():
     После теста dispose() освобождает пул соединений (даже если тест упал).
     """
 
-    url = TEST_DATABASE_URL
+    url = settings.TEST_DATABASE_URL
 
     if not url:
         pytest.fail("TEST_DATABASE_URL не задан")
@@ -30,7 +30,7 @@ async def test_engine():
     await engine.dispose()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def setup_bd(test_engine):
     """
     Фикстура создаёт таблицы в тестовой базе данных create_all.
@@ -43,7 +43,7 @@ async def setup_bd(test_engine):
         await conn.run_sync(SQLModel.metadata.drop_all)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def test_session(test_engine, setup_bd):
     """
     Фикстура создаёт фабрику сессий для тестовой базы данных.
@@ -59,7 +59,7 @@ async def test_session(test_engine, setup_bd):
         await trans.rollback()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def async_client(test_session):
     """
     Фикстура для тестирования API.
