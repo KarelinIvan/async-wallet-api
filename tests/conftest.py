@@ -1,5 +1,3 @@
-import os
-
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -30,7 +28,7 @@ async def test_engine():
     await engine.dispose()
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="session")
 async def setup_bd(test_engine):
     """
     Фикстура создаёт таблицы в тестовой базе данных create_all.
@@ -39,7 +37,10 @@ async def setup_bd(test_engine):
     """
     async with test_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
-        yield
+
+    yield
+
+    async with test_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.drop_all)
 
 
