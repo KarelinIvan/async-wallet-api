@@ -10,7 +10,7 @@ from app.database.session import get_session
 from app.main import app
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="session")
 async def test_engine():
     """
     Фикстура создаёт движек для тестовой базы данных.
