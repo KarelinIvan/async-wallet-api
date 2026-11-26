@@ -61,8 +61,8 @@ async def test_withdraw_balance(async_client, test_session):
     assert response.status_code == 200
 
 
-async def test_concurrent_withdraw_success(async_client, test_session):
-    """Тест проверяет успешное конкурентное списание (баланс сходится в ноль)."""
+async def test_withdraw_success(async_client, test_session):
+    """Тест проверяет успешное списание (баланс сходится в ноль)."""
     wallet = Wallet(balance=Decimal("100.00"))
     test_session.add(wallet)
     await test_session.commit()
@@ -81,9 +81,9 @@ async def test_concurrent_withdraw_success(async_client, test_session):
     assert wallet.balance == Decimal("0.00")
 
 
-async def test_concurrent_withdraw_unsuccessfully(async_client, test_session):
+async def test_withdraw_unsuccessfully(async_client, test_session):
     """
-    Тест проверяет, что при конкурентном списании, превышающем баланс,
+    Тест проверяет, что при списании превышающем баланс,
     лишние запросы отклоняются.
     """
     wallet = Wallet(balance=Decimal("100.00"))
