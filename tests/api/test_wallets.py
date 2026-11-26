@@ -1,4 +1,7 @@
+from decimal import Decimal
 from uuid import uuid4
+
+from app.models.wallet import Wallet
 
 
 async def test_get_wallet_not_found(async_client):
@@ -8,3 +11,18 @@ async def test_get_wallet_not_found(async_client):
     response = await async_client.get(f"/api/v1/wallets/{wallet_id}")
     assert response.status_code == 404
     assert response.json()["detail"] == "Кошелёк не найден"
+
+
+async def test_deposit_balance(async_client, test_session):
+    """Тест проверяет увеличение баланса."""
+    wallet = Wallet(balance=Decimal("100.00"))
+    test_session.add(wallet)
+    await test_session.commit()
+    await test_session.refresh(wallet)
+
+    response = await async_client.post(
+        f"/api/v1/wallets/{wallet.id}/operation",
+        json={"operation_type": "DEPOSIT", "amount": 50},
+    )
+    assert response.status_code == 200
+    assert response.json()["balance"] == "150.00"
