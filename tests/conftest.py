@@ -1,3 +1,6 @@
+from decimal import Decimal
+from uuid import UUID
+
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -7,6 +10,7 @@ from sqlmodel import SQLModel, delete
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.settings import settings
+from app.database.repositories.wallet import WalletRepository
 from app.database.session import get_session
 from app.main import app
 from app.models.wallet import Wallet
@@ -122,5 +126,43 @@ async def clean_db(session_factory):
     Фикстура очищает все таблицы в тестовой базе данных."""
     yield
     async with session_factory() as session:
-        await session.execute(delete(Wallet))
+        await session.exec(delete(Wallet))
         await session.commit()
+
+
+@pytest_asyncio.fixture
+async def create_wallet(session_factory, clean_db):
+    """Возвращает функцию, которая создаёт кошелёк с заданным балансом и его id."""
+
+    async def _create(balance: str = "100.00") -> UUID:
+        async with session_factory() as session:
+            wallet = Wallet(balance=Decimal(balance))
+            session.add(wallet)
+            await session.commit()
+            return wallet.id
+
+    return _create
+
+
+@pytest_asyncio.fixture
+async def change_balance(session_factory):
+    """Возвращает функцию, меняющую баланс в ОТДЕЛЬНОЙ сессии."""
+
+    async def _change(wallet_id: UUID, amount: str, is_deposit: bool):
+        async with session_factory() as session:
+            return await WalletRepository(session).update_balance(
+                wallet_id, Decimal(amount), is_deposit=is_deposit
+            )
+
+    return _change
+
+
+@pytest_asyncio.fixture
+async def get_balance(session_factory):
+    """Вызывает функцию, которая отдаёт баланс кошелька."""
+
+    async def _get(wallet_id: UUID) -> Decimal:
+        async with session_factory() as session:
+            return (await WalletRepository(session).get_by_id(wallet_id)).balance  # type: ignore
+
+    return _get
