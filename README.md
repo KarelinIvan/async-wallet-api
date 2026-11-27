@@ -4,7 +4,7 @@ REST API для управления кошельками пользовател
 
 ✨ Технологии (Стек)
 - Серверная часть/ORM: Python, FastAPI, SQLModel
-- База данных: PostgreSQL (асинхронный доступ через sqlalchemy[asyncio] и asyncpg, синхронный — psycopg для миграций)
+- База данных: PostgreSQL (асинхронный доступ через sqlalchemy[asyncio] и asyncpg, синхронный — psycopg2 (psycopg2-binary) для миграций)
 - Миграции: Alembic
 - Тестирование: Pytest, pytest-asyncio, pytest-cov (для оценки покрытия проекта тестами)
 - Контейнеризация: Docker & Docker Compose
@@ -59,6 +59,15 @@ cd async-wallet-api
 - Скопируйте файл .env.example в корневую директорию как .env. Укажите корректные параметры подключения к вашей базе данных
 - Примените миграции: alembic upgrade head
 - Запустите сервер разработки: uvicorn app.main:app --reload
+
+
+🐳 Запуск через Docker Compose
+- Соберите и запустите сервисы: docker compose up --build -d
+- API доступно на http://127.0.0.1:8000, PostgreSQL — на localhost:5433
+- Миграции применяются автоматически при старте контейнера app (alembic upgrade head)
+- Тестовая БД wallet_test создаётся при первой инициализации тома (docker/initdb/01-create-test-db.sql). Если том pgdata уже существовал, создайте БД вручную: docker compose exec db createdb -U postgres wallet_test (либо пересоздайте том: docker compose down -v)
+- Тесты внутри контейнера: docker compose exec app pytest tests/ -v
+- Остановка сервисов: docker compose down
 
 
 ▶️ Запуск тестов
