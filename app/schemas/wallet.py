@@ -16,7 +16,9 @@ class OperationRequest(BaseModel):
     """Схема входящего запроса."""
 
     operation_type: OperationType
-    amount: Decimal = Field(gt=0, description="Сумма операции")
+    amount: Decimal = Field(
+        gt=0, max_digits=10, decimal_places=2, description="Сумма операции"
+    )
 
 
 class WalletResponse(BaseModel):
