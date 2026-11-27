@@ -79,7 +79,7 @@ async def test_session(test_engine, setup_bd):
     async with test_engine.connect() as connection:
         trans = await connection.begin()
 
-        async with AsyncSession(bind=connection) as session:
+        async with AsyncSession(bind=connection, expire_on_commit=False) as session:
             yield session
 
         await trans.rollback()

@@ -57,4 +57,5 @@ class WalletRepository:
             ).returning(Wallet)
 
         result = await self.session.exec(statement)
+        await self.session.commit()
         return result.scalar_one_or_none()
