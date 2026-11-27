@@ -8,7 +8,7 @@ from app.core.settings import settings
 engine = create_async_engine(
     url=settings.DATABASE_URL,
     pool_pre_ping=True,
-    echo=True,
+    echo=settings.DEBUG,
 )
 # Фабрика асинхронных сессий
 session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)

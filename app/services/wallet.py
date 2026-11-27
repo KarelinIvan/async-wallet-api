@@ -54,7 +54,6 @@ class WalletService:
 
         update_wallet = await self.repo.update_balance(wallet_id, amount, is_deposit)
         if update_wallet is not None:
-            await self.repo.session.refresh(update_wallet)
             return update_wallet
         else:
             wallet = await self.repo.get_by_id(wallet_id)
